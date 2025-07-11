@@ -1,0 +1,160 @@
+version: "3.8"
+
+services:
+  jellyfin:
+    image: lscr.io/linuxserver/jellyfin:latest
+    container_name: jellyfin
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Kolkata
+    volumes:
+      - ./mediaserver/config/jellyfin:/config
+      - ./mediaserver/media:/media
+    ports:
+      - 8096:8096
+    networks:
+      - media_net
+    restart: unless-stopped
+
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:latest
+    container_name: sonarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Kolkata
+    volumes:
+      - ./mediaserver/config/sonarr:/config
+      - ./mediaserver/downloads:/downloads
+      - ./mediaserver/media/shows:/tv
+    ports:
+      - 8989:8989
+    networks:
+      - media_net
+    restart: unless-stopped
+
+  radarr:
+    image: lscr.io/linuxserver/radarr:latest
+    container_name: radarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Kolkata
+    volumes:
+      - ./mediaserver/config/radarr:/config
+      - ./mediaserver/downloads:/downloads
+      - ./mediaserver/media/movies:/movies
+    ports:
+      - 7878:7878
+    networks:
+      - media_net
+    restart: unless-stopped
+
+  transmission:
+    image: lscr.io/linuxserver/transmission:latest
+    container_name: transmission
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Kolkata
+    volumes:
+      - ./mediaserver/config/transmission:/config
+      - ./mediaserver/downloads:/downloads
+    ports:
+      - 9091:9091
+      - 51413:51413
+      - 51413:51413/udp
+    networks:
+      - media_net
+    restart: unless-stopped
+
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:latest
+    container_name: prowlarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Kolkata
+    volumes:
+      - ./mediaserver/config/prowlarr:/config
+    ports:
+      - 9696:9696
+    networks:
+      - media_net
+    restart: unless-stopped
+
+  bazarr:
+    image: lscr.io/linuxserver/bazarr:latest
+    container_name: bazarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Kolkata
+    volumes:
+      - ./mediaserver/config/bazarr:/config
+      - ./mediaserver/media/movies:/movies
+      - ./mediaserver/media/shows:/tv
+    ports:
+      - 6767:6767
+    networks:
+      - media_net
+    restart: unless-stopped
+
+  jellyseerr:
+    image: fallenbagel/jellyseerr:latest
+    container_name: jellyseerr
+    environment:
+      - LOG_LEVEL=debug
+      - TZ=Asia/Kolkata
+    volumes:
+      - ./mediaserver/config/jellyseerr:/app/config
+    ports:
+      - 5055:5055
+    networks:
+      - media_net
+    restart: unless-stopped
+
+  jackett:
+    image: lscr.io/linuxserver/jackett:latest
+    container_name: jackett
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Kolkata
+    volumes:
+      - ./mediaserver/config/jackett:/config
+      - ./mediaserver/downloads:/downloads
+    ports:
+      - 9117:9117
+    networks:
+      - media_net
+    restart: unless-stopped
+
+  flaresolverr:
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
+    environment:
+      - LOG_LEVEL=info
+      - TZ=Asia/Kolkata
+    ports:
+      - 8191:8191
+    networks:
+      - media_net
+    restart: unless-stopped
+
+  homarr:
+    image: ghcr.io/ajnart/homarr:latest
+    container_name: homarr
+    volumes:
+      - ./mediaserver/config/homarr:/app/data/configs
+      - ./mediaserver/icons:/app/public/icons
+    ports:
+      - 7575:7575
+    networks:
+      - media_net
+    restart: unless-stopped
+
+networks:
+  media_net:
+    driver: bridge
